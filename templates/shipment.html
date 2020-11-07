@@ -1,0 +1,739 @@
+{% extends "bootstrap/base.html" %}
+
+{% block head %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal Auditing</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+{% endblock %}
+
+{% block title %}Shipment{% endblock %}
+
+{% block content %}
+    <nav class="navbar navbar-expand-lg navbar-light" style="background-color: #e3f2fd;">
+        <a class="navbar-brand" href="/">Portal Auditor Tools</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item active">
+                    <a class="nav-link">Please check your shipment daily<span class="sr-only">(current)</span></a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                      Transportation
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                        <a class="dropdown-item" href="{{ url_for('.filterbytype', shipment_abbs='AI') }}">Air Import</a>
+                        <a class="dropdown-item" href="{{ url_for('.filterbytype', shipment_abbs='AE') }}">Air Export</a>
+                        <a class="dropdown-item" href="{{ url_for('.filterbytype', shipment_abbs='SI') }}">Sea Import</a>
+                        <a class="dropdown-item" href="{{ url_for('.filterbytype', shipment_abbs='SE') }}">Sea Export</a>
+                        <a class="dropdown-item" href="{{ url_for('.filterbytype', shipment_abbs='ST') }}">Trucking</a>
+                    </div>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                      Operations
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                        <a class="dropdown-item" href="{{ url_for('.filterbyname', owner_name='AREEYA') }}">AREEYA</a>
+                        <a class="dropdown-item" href="{{ url_for('.filterbyname', owner_name='ATCHARA') }}">ATCHARA</a>
+                        <a class="dropdown-item" href="{{ url_for('.filterbyname', owner_name='BUSARAKAM') }}">BUSARAKAM</a>
+                        <a class="dropdown-item" href="{{ url_for('.filterbyname', owner_name='CHIRARAT') }}">CHIRARAT</a>
+                        <a class="dropdown-item" href="{{ url_for('.filterbyname', owner_name='CHONTICHA') }}">CHONTICHA</a>
+                        <a class="dropdown-item" href="{{ url_for('.filterbyname', owner_name='DUANGPORN') }}">DUANGPORN</a>
+                        <a class="dropdown-item" href="{{ url_for('.filterbyname', owner_name='FRAME') }}">FRAME</a>
+                        <a class="dropdown-item" href="{{ url_for('.filterbyname', owner_name='KEMJIRA') }}">KEMJIRA</a>
+                        <a class="dropdown-item" href="{{ url_for('.filterbyname', owner_name='KITINUDDA') }}">KITINUDDA</a>
+                        <a class="dropdown-item" href="{{ url_for('.filterbyname', owner_name='MANEERAT') }}">MANEERAT</a>
+                        <a class="dropdown-item" href="{{ url_for('.filterbyname', owner_name='NANTANUCH') }}">NANTANUCH</a>
+                        <a class="dropdown-item" href="{{ url_for('.filterbyname', owner_name='NOPPARAT') }}">NOPPARAT</a>
+                        <a class="dropdown-item" href="{{ url_for('.filterbyname', owner_name='ONJIRA') }}">ONJIRA</a>
+                        <a class="dropdown-item" href="{{ url_for('.filterbyname', owner_name='PAKKAPON') }}">PAKKAPON</a>
+                        <a class="dropdown-item" href="{{ url_for('.filterbyname', owner_name='PONGSATHON') }}">PONGSATHON</a>
+                        <a class="dropdown-item" href="{{ url_for('.filterbyname', owner_name='PRONPARPA') }}">PRONPARPA</a>
+                        <a class="dropdown-item" href="{{ url_for('.filterbyname', owner_name='ROJJANA') }}">ROJJANA</a>
+                        <a class="dropdown-item" href="{{ url_for('.filterbyname', owner_name='SUPARLAK') }}">SUPARLAK</a>
+                        <a class="dropdown-item" href="{{ url_for('.filterbyname', owner_name='SUREEWAN') }}">SUREEWAN</a>
+                        <a class="dropdown-item" href="{{ url_for('.filterbyname', owner_name='TASANAPORN') }}">TASANAPORN</a>
+                        <a class="dropdown-item" href="{{ url_for('.filterbyname', owner_name='WACHIRAPORN') }}">WACHIRAPORN</a>
+                        <a class="dropdown-item" href="{{ url_for('.filterbyname', owner_name='WARARAT') }}">WARARAT</a>
+                    </div>
+                </li>
+            </ul>
+            <form method="POST" action="{{ url_for('search') }}" class="form-inline my-2 my-lg-0">
+                <input class="form-control mr-sm-2" type="search" placeholder="Search" name="shipment_id">
+                <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+            </form>
+        </div>
+    </nav>
+
+    <div class="card mx-auto my-3" style="width: 90%;"> 
+        <!---shipment header-->
+        <div class="card-header sticky-top" style="background-color: whitesmoke; z-index: 1;">
+            {% if shipment.shipment_code is not none %}
+                <h5 class="card-title">Shipment Number: {{ shipment.shipment_code }}</h5>
+                {% if shipment.status == 'SUCCESS' %}
+                    <button type="botton" class="btn btn-sm btn-success float-right" disabled>{{ shipment.status }}</button>
+                {% elif shipment.status == 'ACTIVE' %}
+                    <button type="botton" class="btn btn-sm btn-danger float-right" disabled>{{ shipment.status }}</button>
+                {% elif shipment.status == 'APPROVING' %}
+                    <button type="botton" class="btn btn-sm btn-danger float-right" disabled>{{ shipment.status }}</button>
+                {% elif shipment.status == 'REJECT' %}
+                    <button type="botton" class="btn btn-sm btn-warning float-right" disabled>{{ shipment.status }}</button>
+                {% endif %}
+            {% else %}
+                <h5 class="card-text">Shipment Number: Missing</h5>
+            {% endif %}
+
+            {% if shipment.mode is not none %}
+                <p class="card-title">Transportation mode: {{ shipment.mode }}</p>
+            {% else %}
+                <p class="card-text">Transportation mode: Missing</p>
+            {% endif %}
+
+            {% if shipment.term is not none %}
+                <p class="card-title">Container term: {{ shipment.term }}</p>
+            {% else %}
+                <p class="card-text">Container term: Missing</p>
+            {% endif %}
+                <p class="text-sm-right font-weight-light mb-0 pb-0">Owner: {{ shipment.owner }}</p>
+        </div>
+        <!---Shipment information-->
+        <div class="card-body">
+            <table class="table table-hover">
+                <tbody>
+                    <thead class="thead-dark">
+                        <tr class="d-flex">
+                          <th scope="col" class="col-1">List</th>
+                          <th scope="col" class="col-3">Item</th>
+                          <th scope="col" class="col-7">Data</th>
+                          <th scope="col" class="col-1">Status</th>
+                        </tr>
+                    </thead>
+
+                    {% if shipment.pol is not none %}
+                        <tr class="d-flex">
+                            <th class="col-1">1</th>
+                            <td class="col-3"><p>Port of loading</p></td>
+                            <td class="col-7"><p>{{ shipment.pol }}</p></td>
+                            <td class="col-1"><button type="botton" class="btn btn-sm btn-success" disabled>Done</button></td>
+                        </tr>
+                    {% else %}
+                        <tr class="d-flex table-danger">
+                            <th class="col-1">1</th>
+                            <td class="col-3"><p>Port of loading</p></td>
+                            <td class="col-7"><p>{{ shipment.pol }}</p></td>
+                            <td class="col-1"><button type="botton" class="btn btn-sm btn-danger" disabled>Missing</button></td>
+                        </tr>
+                    {% endif %}
+
+                    {% if shipment.etd is not none %}
+                        <tr class="d-flex">
+                            <th class="col-1">2</th>
+                            <td class="col-3"><p>Estimated time of departure</p></td>
+                            <td class="col-7"><p>{{ moment(shipment.etd).format('L') }}</p></td>
+                            <td class="col-1"><button type="botton" class="btn btn-sm btn-success" disabled>Done</button></td>
+                        </tr>
+                    {% else %}
+                        <tr class="d-flex table-danger">
+                            <th class="col-1">2</th>
+                            <td class="col-3"><p>Estimated time of departure</p></td>
+                            <td class="col-7"><p>{{ moment(shipment.eta).format('L') }}</p></td>
+                            <td class="col-1"><button type="botton" class="btn btn-sm btn-danger" disabled>Missing</button></td>
+                        </tr>
+                    {% endif %}
+
+                    {% if shipment.atd is not none %}
+                        <tr class="d-flex">
+                            <th class="col-1">3</th>
+                            <td class="col-3"><p>Actual time of departure</p></td>
+                            <td class="col-7"><p>{{ moment(shipment.atd).format('L') }}</p></td>
+                            <td class="col-1"><button type="botton" class="btn btn-sm btn-success" disabled>Done</button></td>
+                        </tr>
+                    {% else %}
+                        <tr class="d-flex table-danger">
+                            <th class="col-1">3</th>
+                            <td class="col-3"><p>Actual time of departure</p></td>
+                            <td class="col-7"><p>{{ moment(shipment.atd).format('L') }}</p></td>
+                            <td class="col-1"><button type="botton" class="btn btn-sm btn-danger" disabled>Missing</button></td>
+                        </tr>
+                    {% endif %}
+
+                    {% if shipment.pod is not none %}
+                        <tr class="d-flex">
+                            <th class="col-1">4</th>
+                            <td class="col-3"><p>Port of discharging</p></td>
+                            <td class="col-7"><p>{{ shipment.pod }}</p></td>
+                            <td class="col-1"><button type="botton" class="btn btn-sm btn-success" disabled>Done</button></td>
+                        </tr>
+                    {% else %}
+                        <tr class="d-flex table-danger">
+                            <th class="col-1">4</th>
+                            <td class="col-3"><p>Port of loading</p></td>
+                            <td class="col-7"><p>{{ shipment.pod }}</p></td>
+                            <td class="col-1"><button type="botton" class="btn btn-sm btn-danger" disabled>Missing</button></td>
+                        </tr>
+                    {% endif %}
+
+                    {% if shipment.eta is not none %}
+                        <tr class="d-flex">
+                            <th class="col-1">5</th>
+                            <td class="col-3"><p>Estimated time of arrival</p></td>
+                            <td class="col-7"><p>{{ moment(shipment.eta).format('L') }}</p></td>
+                            <td class="col-1"><button type="botton" class="btn btn-sm btn-success" disabled>Done</button></td>
+                        </tr>
+                    {% else %}
+                        <tr class="d-flex table-danger">
+                            <th class="col-1">5</th>
+                            <td class="col-3"><p>Estimated time of arrival</p></td>
+                            <td class="col-7"><p>{{ moment(shipment.eta).format('L') }}</p></td>
+                            <td class="col-1"><button type="botton" class="btn btn-sm btn-danger" disabled>Missing</button></td>
+                        </tr>
+                    {% endif %}
+
+                    {% if shipment.ata is not none %}
+                        <tr class="d-flex">
+                            <th class="col-1">6</th>
+                            <td class="col-3"><p>Actual time of arrival</p></td>
+                            <td class="col-7"><p>{{ moment(shipment.ata).format('L') }}</p></td>
+                            <td class="col-1"><button type="botton" class="btn btn-sm btn-success" disabled>Done</button></td>
+                        </tr>
+                    {% else %}
+                        <tr class="d-flex table-danger">
+                            <th class="col-1">6</th>
+                            <td class="col-3"><p>Actual time of arrival</p></td>
+                            <td class="col-7"><p>{{ moment(shipment.ata).format('L') }}</p></td>
+                            <td class="col-1"><button type="botton" class="btn btn-sm btn-danger" disabled>Missing</button></td>
+                        </tr>
+                    {% endif %}
+                    
+                    {% if shipment.localname is not none %}
+                        <tr class="d-flex">
+                            <th class="col-1">7</th>
+                            <td class="col-3"><p>Local client</p></td>
+                            <td class="col-7"><p>{{ shipment.localname }}</p></td>
+                            <td class="col-1"><button type="botton" class="btn btn-sm btn-success" disabled>Done</button></td>
+                        </tr>
+                    {% else %}
+                        <tr class="d-flex table-danger">
+                            <th class="col-1">7</th>
+                            <td class="col-3"><p>Local client</p></td>
+                            <td class="col-7"><p>{{ shipment.localname }}</p></td>
+                            <td class="col-1"><button type="botton" class="btn btn-sm btn-danger" disabled>Missing</button></td>
+                        </tr>
+                    {% endif %}
+                    
+                    {% if shipment.incoterm is not none %}
+                        <tr class="d-flex">
+                            <th class="col-1">8</th>
+                            <td class="col-3"><p>Incoterm</p></td>
+                            <td class="col-7"><p>{{ shipment.incoterm }}</p></td>
+                            <td class="col-1"><button type="botton" class="btn btn-sm btn-success" disabled>Done</button></td>
+                        </tr>
+                    {% else %}
+                        <tr class="d-flex table-danger">
+                            <th class="col-1">8</th>
+                            <td class="col-3"><p>Incoterm</p></td>
+                            <td class="col-7"><p>{{ shipment.incoterm }}</p></td>
+                            <td class="col-1"><button type="botton" class="btn btn-sm btn-danger" disabled>Missing</button></td>
+                        </tr>
+                    {% endif %}
+                   
+                    {% if shipment.package is not none %}
+                        <tr class="d-flex">
+                            <th class="col-1">9</th>
+                            <td class="col-3"><p>Packages</p></td>
+                            <td class="col-7"><p>{{ shipment.package }}</p></td>
+                            <td class="col-1"><button type="botton" class="btn btn-sm btn-success" disabled>Done</button></td>
+                        </tr>
+                    {% else %}
+                        <tr class="d-flex table-danger">
+                            <th class="col-1">9</th>
+                            <td class="col-3"><p>Packages</p></td>
+                            <td class="col-7"><p>{{ shipment.package }}</p></td>
+                            <td class="col-1"><button type="botton" class="btn btn-sm btn-danger" disabled>Missing</button></td>
+                        </tr>
+                    {% endif %}
+                    
+                    {% if shipment.goods is not none %}
+                        <tr class="d-flex">
+                            <th class="col-1">10</th>
+                            <td class="col-3"><p>Commodity</p></td>
+                            <td class="col-7"><p>{{ shipment.goods }}</p></td>
+                            <td class="col-1"><button type="botton" class="btn btn-sm btn-success" disabled>Done</button></td>
+                        </tr>
+                    {% else %}
+                        <tr class="d-flex table-danger">
+                            <th class="col-1">10</th>
+                            <td class="col-3"><p>Commodity</p></td>
+                            <td class="col-7"><p>{{ shipment.goods }}</p></td>
+                            <td class="col-1"><button type="botton" class="btn btn-sm btn-danger" disabled>Missing</button></td>
+                        </tr>
+                    {% endif %}
+
+                    {% if shipment.weight is defined %}
+                        {% if shipment.weight > 0.0 %}
+                            <tr class="d-flex">
+                                <th class="col-1">11</th>
+                                <td class="col-3"><p>Gross weight</p></td>
+                                <td class="col-7"><p>{{ shipment.weight }}</p></td>
+                                <td class="col-1"><button type="botton" class="btn btn-sm btn-success" disabled>Done</button></td>
+                            </tr>
+                        {% else %}
+                            <tr class="d-flex table-danger">
+                                <th class="col-1">11</th>
+                                <td class="col-3"><p>Gross weight</p></td>
+                                <td class="col-7"><p>{{ shipment.weight }}</p></td>
+                                <td class="col-1"><button type="botton" class="btn btn-sm btn-danger" disabled>Missing</button></td>
+                            </tr>
+                        {% endif %}
+                    {% else %}
+                        <tr class="d-flex table-danger">
+                            <th class="col-1">11</th>
+                            <td class="col-3"><p>Gross weight</p></td>
+                            <td class="col-7"><p>{{ shipment.weight }}</p></td>
+                            <td class="col-1"><button type="botton" class="btn btn-sm btn-danger" disabled>Missing</button></td>
+                        </tr>
+                    {% endif %}
+                    
+                    {% if shipment.volume is defined %}
+                        {% if shipment.volume > 0 %}
+                            <tr class="d-flex">
+                                <th class="col-1">12</th>
+                                <td class="col-3"><p>Volume</p></td>
+                                <td class="col-7"><p>{{ shipment.volume }}</p></td>
+                                <td class="col-1"><button type="botton" class="btn btn-sm btn-success" disabled>Done</button></td>
+                            </tr>
+                        {% else %}
+                            <tr class="d-flex table-danger">
+                                <th class="col-1">12</th>
+                                <td class="col-3"><p>Volume</p></td>
+                                <td class="col-7"><p>{{ shipment.volume }}</p></td>
+                                <td class="col-1"><button type="botton" class="btn btn-sm btn-danger" disabled>Missing</button></td>
+                            </tr>
+                        {% endif %}
+                    {% else %}
+                        <tr class="d-flex table-danger">
+                            <th class="col-1">12</th>
+                            <td class="col-3"><p>Volume</p></td>
+                            <td class="col-7"><p>{{ shipment.volume }}</p></td>
+                            <td class="col-1"><button type="botton" class="btn btn-sm btn-danger" disabled>Missing</button></td>
+                        </tr>
+                    {% endif %}
+
+                    {% if shipment.bl is not none %}
+                        <tr class="d-flex">
+                            <th class="col-1">13</th>
+                            <td class="col-3"><p>Bill of Lading</p></td>
+                            <td class="col-7"><p>{{ shipment.bl }}</p></td>
+                            <td class="col-1"><button type="botton" class="btn btn-sm btn-success" disabled>Done</button></td>
+                        </tr>
+                    {% else %}
+                        <tr class="d-flex table-danger">
+                            <th class="col-1">13</th>
+                            <td class="col-3"><p>Bill of Lading</p></td>
+                            <td class="col-7"><p>{{ shipment.bl }}</p></td>
+                            <td class="col-1"><button type="botton" class="btn btn-sm btn-danger" disabled>Missing</button></td>
+                        </tr>
+                    {% endif %}
+
+                    {% if shipment.shipper is not none %}
+                        <tr class="d-flex">
+                            <th class="col-1">14</th>
+                            <td class="col-3"><p>Shipper</p></td>
+                            <td class="col-7"><p>{{ shipment.shipper }}</p></td>
+                            <td class="col-1"><button type="botton" class="btn btn-sm btn-success" disabled>Done</button></td>
+                        </tr>
+                    {% else %}
+                        <tr class="d-flex table-danger">
+                            <th class="col-1">14</th>
+                            <td class="col-3"><p>Shipper</p></td>
+                            <td class="col-7"><p>{{ shipment.shipper }}</p></td>
+                            <td class="col-1"><button type="botton" class="btn btn-sm btn-danger" disabled>Missing</button></td>
+                        </tr>
+                    {% endif %}
+
+                    {% if shipment.cnee is not none %}
+                        <tr class="d-flex">
+                            <th class="col-1">15</th>
+                            <td class="col-3"><p>Consignee</p></td>
+                            <td class="col-7"><p>{{ shipment.cnee }}</p></td>
+                            <td class="col-1"><button type="botton" class="btn btn-sm btn-success" disabled>Done</button></td>
+                        </tr>
+                    {% else %}
+                        <tr class="d-flex table-danger">
+                            <th class="col-1">15</th>
+                            <td class="col-3"><p>Consignee</p></td>
+                            <td class="col-7"><p>{{ shipment.cnee }}</p></td>
+                            <td class="col-1"><button type="botton" class="btn btn-sm btn-danger" disabled>Missing</button></td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+
+        <!---MILESTONE-->
+        <div class="card-footer">
+        <!---Check AI-->
+        {% if shipment.shipment_code[0:2] == 'AI' %}
+        <h5>Transportation Milestones: <small>Required DEP | ARV | CUC (if any) | DEL (if any)</small></h5>
+                {% for milestone in milestones %}
+                    {% if milestone.milestone in ['DEP', 'ARV', 'CUC','DEL'] %}
+                        {% if milestone.milestone in ['DEP', 'ARV'] %}
+                            <button type="button" class="btn btn-sm btn-success" style="width: 80px;" disabled>{{ milestone.milestone }}</button>
+                        {% elif milestone.milestone in ['CUC', 'DEL'] %}
+                            <button type="button" class="btn btn-sm btn-success" style="width: 80px;" disabled>{{ milestone.milestone }}</button>
+                        {% endif %}
+                    {% endif %}
+                {% endfor %}
+        {% endif %}
+        {% if shipment.shipment_code[0:2] == 'AI' %}
+        <h5>Non-Transportation Milestones: <small>Required DO</small></h5>
+            {% for milestone in milestones %}
+                {% if milestone.milestone == 'DO' %}
+                    <button type="button" class="btn btn-sm btn-success" style="width: 80px;" disabled>{{ milestone.milestone }}</button>
+                {% elif milestone.milestone is not in ['DEP', 'ARV', 'CUC','DEL'] %}
+                    <button type="button" class="btn btn-sm btn-warning" style="width: 80px;" disabled>Missing DO</button>
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+        <!---Check AI-->
+
+        <!---Check AE-->
+        {% if shipment.shipment_code[0:2] == 'AE' %}
+        <h5>Transportation Milestones: <small>Required CEC | DEP | ARV</small></h5>
+                {% for milestone in milestones %}
+                    {% if milestone.milestone in ['CEC', 'DEP', 'ARV'] %}
+                        <button type="button" class="btn btn-sm btn-success" style="width: 80px;" disabled>{{ milestone.milestone }}</button>
+                    {% endif %}
+                {% endfor %}
+        {% endif %}
+        {% if shipment.shipment_code[0:2] == 'AE' %}
+        <h5>Non-Transportation Milestones: <small>Required STATUS04</small></h5>
+            {% for milestone in milestones %}
+                {% if milestone.milestone == 'STATUS04' %}
+                    <button type="button" class="btn btn-sm btn-success" style="width: 90px;" disabled>{{ milestone.milestone }}</button>
+                {% elif milestone.milestone is not in ['CEC', 'DEP', 'ARV', 'DELAY'] %}
+                    <button type="button" class="btn btn-sm btn-warning" disabled>Missing STATUS04</button>
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+        <!---Check AE-->
+
+        <!---Check SE-->
+        {% if shipment.shipment_code[0:2] == 'SE' %}
+        {% if shipment.term == 'LCL' %}
+            <h5>Transportation Milestones: <small>Required DEP | ARV | RTN | CEC (if any)</small></h5>
+                {% for milestone in milestones %}
+                    {% if milestone.milestone in ['DEP', 'ARV', 'RTN','CEC'] %}
+                        {% if milestone.milestone in ['DEP', 'ARV', 'RTN'] %}
+                            <button type="button" class="btn btn-sm btn-success" style="width: 80px;" disabled>{{ milestone.milestone }}</button>
+                        {% elif milestone.milestone in ['CEC'] %}
+                            <button type="button" class="btn btn-sm btn-success" style="width: 80px;" disabled>{{ milestone.milestone }}</button>
+                        {% endif %}
+                    {% endif %}
+                {% endfor %}
+        {% elif shipment.term == 'FCL' %}
+            <h5>Transportation Milestones: <small>Required DEP | ARV | RTN | CEC (if any)</small></h5>
+                {% for milestone in milestones %}
+                    {% if milestone.milestone in ['DEP', 'ARV', 'RTN','CEC'] %}
+                        {% if milestone.milestone in ['DEP', 'ARV', 'RTN'] %}
+                            <button type="button" class="btn btn-sm btn-success" style="width: 80px;" disabled>{{ milestone.milestone }}</button>
+                        {% elif milestone.milestone in ['CEC'] %}
+                            <button type="button" class="btn btn-sm btn-success" style="width: 80px;" disabled>{{ milestone.milestone }}</button>
+                        {% endif %}
+                    {% endif %}
+                {% endfor %}
+        {% endif %}
+        {% endif %}
+        {% if shipment.shipment_code[0:2] == 'SE' %}
+        {% if shipment.term == 'LCL' %}
+            <h5>Non-Transportation Milestones: <small>Required CFS | BLCON |BLCOM</small></h5>
+                {% for milestone in milestones %}
+                    {% if milestone.milestone in ['CFS', 'BLCON', 'BLCOM'] %}
+                        <button type="button" class="btn btn-sm btn-success" style="width: 80px;" disabled>{{ milestone.milestone }}</button>
+                    {% elif milestone.milestone is not in ['DEP', 'ARV', 'RTN', 'CEC'] %}
+                        <button type="button" class="btn btn-sm btn-warning" style="width: 80px;" disabled>Wrong {{ milestone.milestone }}</button>
+                    {% endif %}
+                {% endfor %}
+        {% elif shipment.term == 'FCL' %}
+            <h5>Non-Transportation Milestones: <small>Required CY | BLCON |BLCOM</small></h5>
+                {% for milestone in milestones %}
+                    {% if milestone.milestone in ['CY', 'BLCON', 'BLCOM'] %}
+                        <button type="button" class="btn btn-sm btn-success" style="width: 80px;" disabled>{{ milestone.milestone }}</button>
+                    {% elif milestone.milestone is not in ['DEP', 'ARV', 'RTN', 'CEC'] %}
+                        <button type="button" class="btn btn-sm btn-danger" style="width: 80px;" disabled>Wrong {{ milestone.milestone }}</button>
+                    {% endif %} 
+                {% endfor %}
+        {% endif %}
+        {% endif %}
+        <!---Check SE-->
+
+        <!---Check SI-->
+        {% if shipment.shipment_code[0:2] == 'SI' %}
+        {% if shipment.term == 'LCL' %}
+            <h5>Transportation Milestones: <small>Required DEP | ARV | CUC (if any) | DEL (if any)</small></h5>
+                {% for milestone in milestones %}
+                    {% if milestone.milestone in ['DEP', 'ARV', 'CUC', 'DEL'] %}
+                        {% if milestone.milestone in ['DEP', 'ARV'] %}
+                            <button type="button" class="btn btn-sm btn-success" style="width: 80px;" disabled>{{ milestone.milestone }}</button>
+                        {% elif milestone.milestone in ['CUC', 'DEL'] %}
+                            <button type="button" class="btn btn-sm btn-success" style="width: 80px;" disabled>{{ milestone.milestone }}</button>
+                        {% endif %}
+                    {% endif %}
+                {% endfor %}
+        {% elif shipment.term == 'FCL' %}
+            <h5>Transportation Milestones: <small>Required DEP | ARV | CUC (if any) | DEL (if any)</small></h5>
+                {% for milestone in milestones %}
+                    {% if milestone.milestone in ['DEP', 'ARV', 'CUC', 'DEL'] %}
+                        {% if milestone.milestone in ['DEP', 'ARV'] %}
+                            <button type="button" class="btn btn-sm btn-success" style="width: 80px;" disabled>{{ milestone.milestone }}</button>
+                        {% elif milestone.milestone in ['CUC', 'DEL'] %}
+                            <button type="button" class="btn btn-sm btn-success" style="width: 80px;" disabled>{{ milestone.milestone }}</button>
+                        {% endif %}
+                    {% endif %}
+                {% endfor %}
+        {% endif %}
+        {% endif %}
+        {% if shipment.shipment_code[0:2] == 'SI' %}
+        {% if shipment.term == 'LCL' %}
+            <h5>Non-Transportation Milestones: <small>Required DO | USF</small></h5>
+                {% for milestone in milestones %}
+                    {% if milestone.milestone in ['DO', 'USF'] %}
+                        <button type="button" class="btn btn-sm btn-success" style="width: 80px;" disabled>{{ milestone.milestone }}</button>
+                    {% elif milestone.milestone is not in ['DEP', 'ARV', 'CUC', 'DEL', '0'] %}
+                        <button type="button" class="btn btn-sm btn-warning" style="width: 80px;" disabled>Wrong {{ milestone.milestone }}</button>
+                    {% endif %}
+                {% endfor %}
+        {% elif shipment.term == 'FCL' %}
+            <h5>Non-Transportation Milestones: <small>Required DO</small></h5>
+                {% for milestone in milestones %}
+                    {% if milestone.milestone in ['DO'] %}
+                        <button type="button" class="btn btn-sm btn-success" style="width: 80px;" disabled>{{ milestone.milestone }}</button>
+                    {% elif milestone.milestone is not in ['DEP', 'ARV', 'CUC', 'DEL', '0'] %}
+                        <button type="button" class="btn btn-sm btn-danger" style="width: 80px;" disabled>Wrong {{ milestone.milestone }}</button>
+                    {% endif %} 
+                {% endfor %}
+        {% endif %}
+        {% endif %}
+        <!---Check SI-->
+
+        <!---Check ST-->
+        {% if shipment.shipment_code[0:2] == 'ST' %}
+        <h5>Transportation Milestones: <small>Required DEP | ARV | RTN (if any) | CEC (if any) | DEL (if any)</small></h5>
+                {% for milestone in milestones %}
+                    {% if milestone.milestone in ['DEP', 'ARV', 'RTN','DEL', 'CEC'] %}
+                        {% if milestone.milestone in ['DEP', 'ARV'] %}
+                            <button type="button" class="btn btn-sm btn-success" style="width: 80px;" disabled>{{ milestone.milestone }}</button>
+                        {% elif milestone.milestone in ['RTN', 'DEL', 'CEC'] %}
+                            <button type="button" class="btn btn-sm btn-success" style="width: 80px;" disabled>{{ milestone.milestone }}</button>
+                        {% endif %}
+                    {% endif %}
+                {% endfor %}
+        {% endif %}
+        {% if shipment.shipment_code[0:2] == 'ST' %}
+        <h5>Non-Transportation Milestones: <small>Required CY (if any) | CFS (if any) | DEB (if any)</small></h5>
+            {% for milestone in milestones %}
+                {% if milestone.milestone in ['CY', 'CFS', 'DEB'] %}
+                    <button type="button" class="btn btn-sm btn-success" style="width: 80px;" disabled>{{ milestone.milestone }}</button>
+                {% elif milestone.milestone is not in ['DEP', 'ARV', 'RTN','DEL'] %}
+                    <button type="button" class="btn btn-sm btn-success" style="width: 80px;" disabled>None</button>
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+        <!---Check ST-->
+        </div>
+
+        <!--DOCUMENT-->
+        <div class="card-body">
+        <!---Check AI-->
+        {% if shipment.shipment_code[0:2] == 'AI' %}
+            <h5>Required documents (Freight): 
+                <button type="button" class="btn btn-sm btn-primary" style="width: 80px;" disabled>AWB</button>
+                <button type="button" class="btn btn-sm btn-primary" style="width: 80px;" disabled>DO</button>
+                <button type="button" class="btn btn-sm btn-primary" style="width: 80px;" disabled>BILLING</button>
+                <button type="button" class="btn btn-sm btn-primary" style="width: 80px;" disabled>CI</button>
+                <button type="button" class="btn btn-sm btn-primary" style="width: 80px;" disabled>PL</button>
+                <button type="button" class="btn btn-sm btn-primary" style="width: 80px;" disabled>CO if any</button>
+            </h5>
+            <h5>Required documents (Freight+Shipping): 
+                <button type="button" class="btn btn-sm btn-primary" style="width: 80px;" disabled>AWB</button>
+                <button type="button" class="btn btn-sm btn-primary" style="width: 80px;" disabled>BILLING</button>
+                <button type="button" class="btn btn-sm btn-primary" style="width: 80px;" disabled>CI</button>
+                <button type="button" class="btn btn-sm btn-primary" style="width: 80px;" disabled>PL</button>
+                <button type="button" class="btn btn-sm btn-primary" style="width: 80px;" disabled>ENTRY</button>
+                <button type="button" class="btn btn-sm btn-primary" style="width: 80px;" disabled>CO if any</button>
+            </h5>
+        {% endif %}
+        <!---Check AI-->
+
+        <!---Check AE-->
+        {% if shipment.shipment_code[0:2] == 'AE' %}
+            <h5>Required documents: 
+                <button type="button" class="btn btn-sm btn-primary" style="width: 80px;" disabled>AWB</button>
+                <button type="button" class="btn btn-sm btn-primary" style="width: 80px;" disabled>BILLING</button>
+                <button type="button" class="btn btn-sm btn-primary" style="width: 80px;" disabled>CI</button>
+                <button type="button" class="btn btn-sm btn-primary" style="width: 80px;" disabled>PL</button>
+                <button type="button" class="btn btn-sm btn-primary" style="width: 80px;" disabled>ENTRY</button>
+                <button type="button" class="btn btn-sm btn-primary" style="width: 80px;" disabled>CO if any</button>
+            </h5>
+        {% endif %}
+        <!---Check AE-->
+
+        <!---Check SE-->
+        {% if shipment.shipment_code[0:2] == 'SE' %}
+            <h5>Required documents (Freight): 
+                <button type="button" class="btn btn-sm btn-primary" style="width: 80px;" disabled>BL</button>
+                <button type="button" class="btn btn-sm btn-primary" style="width: 80px;" disabled>BILLING</button>
+            </h5>
+            <h5>Required documents (Freight+Shipping): 
+                <button type="button" class="btn btn-sm btn-primary" style="width: 80px;" disabled>BL</button>
+                <button type="button" class="btn btn-sm btn-primary" style="width: 80px;" disabled>BILLING</button>
+                <button type="button" class="btn btn-sm btn-primary" style="width: 80px;" disabled>CI</button>
+                <button type="button" class="btn btn-sm btn-primary" style="width: 80px;" disabled>PL</button>
+                <button type="button" class="btn btn-sm btn-primary" style="width: 80px;" disabled>ENTRY</button>
+                <button type="button" class="btn btn-sm btn-primary" style="width: 80px;" disabled>CO if any</button>
+            </h5>
+        {% endif %}
+        <!---Check SE-->
+
+        <!---Check SI-->
+        {% if shipment.shipment_code[0:2] == 'SI' %}
+            <h5>Required documents (Freight): 
+                <button type="button" class="btn btn-sm btn-primary" style="width: 80px;" disabled>BL</button>
+                <button type="button" class="btn btn-sm btn-primary" style="width: 80px;" disabled>BILLING</button>
+            </h5>
+            <h5>Required documents (Freight+Shipping): 
+                <button type="button" class="btn btn-sm btn-primary" style="width: 80px;" disabled>BL</button>
+                <button type="button" class="btn btn-sm btn-primary" style="width: 80px;" disabled>BILLING</button>
+                <button type="button" class="btn btn-sm btn-primary" style="width: 80px;" disabled>CI</button>
+                <button type="button" class="btn btn-sm btn-primary" style="width: 80px;" disabled>PL</button>
+                <button type="button" class="btn btn-sm btn-primary" style="width: 80px;" disabled>ENTRY</button>
+                <button type="button" class="btn btn-sm btn-primary" style="width: 80px;" disabled>CO if any</button>
+            </h5>
+        {% endif %}
+        <!---Check SI-->
+
+        <!---Check ST-->
+        {% if shipment.shipment_code[0:2] == 'ST' %}
+            <h5>Required documents: 
+                <button type="button" class="btn btn-sm btn-primary" style="width: 80px;" disabled>BILLING</button>
+            </h5>
+        {% endif %}
+        <!---Check ST-->
+        </div>
+
+        <!---Document Part-->
+        <div  class="card-footer container" style="max-width: 100%; height: 100px;">
+            <h5>Document Lists</h5>
+            {% if shipment.shipment_code[0:2] == 'AI' or shipment.shipment_code[0:2] == 'AE' %}
+                <input type="list" class="draggable btn btn-sm btn-primary mx-sm-1" draggable="true" value="AWB" name="document_name" readonly style="width: 80px;">
+                <input type="list" class="draggable btn btn-sm btn-primary mx-sm-1" draggable="true" value="DO" name="document_name" readonly style="width: 80px;">
+                <input type="list" class="draggable btn btn-sm btn-primary mx-sm-1" draggable="true" value="BILLING" name="document_name" readonly style="width: 80px;">
+                <input type="list" class="draggable btn btn-sm btn-primary mx-sm-1" draggable="true" value="CI" name="document_name" readonly style="width: 80px;">
+                <input type="list" class="draggable btn btn-sm btn-primary mx-sm-1" draggable="true" value="PL" name="document_name" readonly style="width: 80px;">
+                <input type="list" class="draggable btn btn-sm btn-primary mx-sm-1" draggable="true" value="ENTRY" name="document_name" readonly style="width: 80px;">
+                <input type="list" class="draggable btn btn-sm btn-primary mx-sm-1" draggable="true" value="CO" name="document_name" readonly style="width: 80px;">
+            {% endif %}
+            {% if shipment.shipment_code[0:2] == 'SE' or shipment.shipment_code[0:2] == 'SI' %}
+                <input type="list" class="draggable btn btn-sm btn-primary mx-sm-1" draggable="true" value="BL" name="document_name" readonly style="width: 80px;">
+                <input type="list" class="draggable btn btn-sm btn-primary mx-sm-1" draggable="true" value="BILLING" name="document_name" readonly style="width: 80px;">
+                <input type="list" class="draggable btn btn-sm btn-primary mx-sm-1" draggable="true" value="CI" name="document_name" readonly style="width: 80px;">
+                <input type="list" class="draggable btn btn-sm btn-primary mx-sm-1" draggable="true" value="PL" name="document_name" readonly style="width: 80px;">
+                <input type="list" class="draggable btn btn-sm btn-primary mx-sm-1" draggable="true" value="ENTRY" name="document_name" readonly style="width: 80px;">
+                <input type="list" class="draggable btn btn-sm btn-primary mx-sm-1" draggable="true" value="CO" name="document_name" readonly style="width: 80px;">
+            {% endif %}
+            {% if shipment.shipment_code[0:2] == 'ST' %}
+                <input type="list" class="draggable btn btn-sm btn-primary mx-sm-1" draggable="true" value="BILLING" name="document_name" readonly style="width: 80px;">
+            {% endif %}
+        </div>
+
+        
+        <form method="POST" action="">
+            <div class="card-body container" style="max-width: 100%; height: 100px;">
+                <h5>Uploaded documents</h5> 
+                <button class="btn btn-outline-success float-right mx-sm-1" type="submit">Record</button>
+                {% for doc in documents %}
+                    <input type="list" class="draggable btn btn-sm btn-success mx-sm-1" draggable="true" value="{{ doc.document }}" name="document_name" readonly style="width: 80px;">
+                {% endfor %}
+            </div>
+        </form>
+
+        <div class="card-footer container" style="max-width: 100%; height: 55px;">
+            <i class="fas fa-trash-alt"></i>
+        </div>
+    
+        <!---Comment-->
+        <div class="card-footer">
+            <h5>Comment</h5>
+        </div>
+        
+        <div class="card-body">
+            {% for comment in comments %}
+                {% if comment.owner == 'ADMIN' %}
+                    <button class="btn btn-success btn-lg text-right d-flex ml-auto" style="width: 50%;" disabled>{{ comment.comment }}</button>
+                    <p class="text-right">By {{ comment.owner }} {{ moment(comment.timestamp).fromNow() }} </p>
+                    <hr>
+                {% else %}
+                    <button class="btn btn-primary btn-lg text-left" style="width: 50%;" disabled>{{ comment.comment }}</button>
+                    <a href="{{ url_for('.del_comment', shipment_id=shipment.shipment_code, id=comment.id) }}" class="btn btn-outline-danger btn-sm float-right my-auto">Delete</a>
+                    <p>By {{ comment.owner }} {{ moment(comment.timestamp).fromNow() }} </p>
+                    <hr>
+                {% endif %}
+            {% endfor %}
+            <form method="POST">
+                <div class="form-row">
+                    <div class="form-group col-md-9">
+                        <input class="form-control" type="text" name="Comment" placeholder="Comment">
+                    </div>
+                    <div class="form-group col-md-2">
+                        <label class="sr-only" for="inlineFormInputGroupUsername">Username</label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <div class="input-group-text">By</div>
+                            </div>
+                            <input type="text" class="form-control" name="Owner" placeholder="{{ shipment.owner }}" value="{{ shipment.owner }}">
+                        </div>
+                    </div>
+                    <div class="form-group col-md-1">
+                        <button type="submit" formaction="{{ url_for('.comment', shipment_id=shipment.shipment_code) }}" class="btn btn-outline-success" style="width: 80px;">Note</button>
+                    </div>
+                </div>
+                {% if shipment.status == 'ACTIVE' or shipment.status == 'REJECT' %}
+                    <button type="submit" formaction="{{ url_for('.success', shipment_id=shipment.shipment_code) }}" class="btn btn-outline-success mx-auto d-flex mb-4 mt-5 justify-content-center" style="width: 30%;">SUCCESS</a>
+                {% elif shipment.status == 'APPROVING' %}
+                    <a href="{{ url_for('.unsuccess', shipment_id=shipment.shipment_code) }}" class="btn btn-outline-danger mx-auto d-flex mb-4 mt-5 justify-content-center" style="width: 30%;">UNSUCCESS</a>
+                {% elif shipment.status == 'SUCCESS' %}
+                    <button type="button" class="btn btn-success mx-auto d-flex mb-4 justify-content-center" style="width: 30%;" disabled>SUCCESS</button>
+                {% endif %}
+            </form>
+        </div>
+
+        <!---Created Time-->
+        <div class="card-footer">
+            {% if shipment.timestamp is defined %}
+                <p class="text-sm-right font-weight-light mb-0 pb-0">Created time: {{ moment(shipment.timestamp).format('LLL') }}</p>
+            {% else %}
+                <p class="text-sm-right font-weight-light mb-0 pb-0">Created time: Unknown</p>
+            {% endif %}
+        </div>
+    
+    </div>
+
+    <nav class="navbar navbar-dark bg-primary">
+        <p class="navbar-text mx-auto d-flex">Create by Chisanupol Wongsoonthorn &copy; version alpha-1.3</p>
+    </nav>
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+    {{ moment.include_moment() }}
+    {{ moment.locale('th') }}
+    <script src="{{ url_for('static', filename='js/shipment.js')}}"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
+    <script src="https://kit.fontawesome.com/5182815ddc.js" crossorigin="anonymous"></script>
+{% endblock %}

@@ -1,0 +1,566 @@
+{% extends "bootstrap/base.html" %}
+{% import "_macros.html" as macros %}
+
+{% block head %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal Auditing</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+{% endblock %}
+
+{% block title %}Portal auditor{% endblock %}
+
+{% block content %}
+    <nav class="navbar navbar-expand-lg navbar-light sticky-top" style="background-color: #e3f2fd;">
+        <a class="navbar-brand" href="/admin">Portal Auditor Tools</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item active">
+                    <a class="nav-link">Please check your shipment daily<span class="sr-only">(current)</span></a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                      Transportation
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                        <a class="dropdown-item" href="{{ url_for('.admin_filterbytype', shipment_abbs='AI') }}">Air Import</a>
+                        <a class="dropdown-item" href="{{ url_for('.admin_filterbytype', shipment_abbs='AE') }}">Air Export</a>
+                        <a class="dropdown-item" href="{{ url_for('.admin_filterbytype', shipment_abbs='SI') }}">Sea Import</a>
+                        <a class="dropdown-item" href="{{ url_for('.admin_filterbytype', shipment_abbs='SE') }}">Sea Export</a>
+                        <a class="dropdown-item" href="{{ url_for('.admin_filterbytype', shipment_abbs='ST') }}">Trucking</a>
+                    </div>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                      Operations
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                        <a class="dropdown-item" href="{{ url_for('.admin_filterbyname', owner_name='AREEYA') }}">AREEYA</a>
+                        <a class="dropdown-item" href="{{ url_for('.admin_filterbyname', owner_name='ATCHARA') }}">ATCHARA</a>
+                        <a class="dropdown-item" href="{{ url_for('.admin_filterbyname', owner_name='BUSARAKAM') }}">BUSARAKAM</a>
+                        <a class="dropdown-item" href="{{ url_for('.admin_filterbyname', owner_name='CHIRARAT') }}">CHIRARAT</a>
+                        <a class="dropdown-item" href="{{ url_for('.admin_filterbyname', owner_name='CHONTICHA') }}">CHONTICHA</a>
+                        <a class="dropdown-item" href="{{ url_for('.admin_filterbyname', owner_name='DUANGPORN') }}">DUANGPORN</a>
+                        <a class="dropdown-item" href="{{ url_for('.admin_filterbyname', owner_name='FRAME') }}">FRAME</a>
+                        <a class="dropdown-item" href="{{ url_for('.admin_filterbyname', owner_name='KEMJIRA') }}">KEMJIRA</a>
+                        <a class="dropdown-item" href="{{ url_for('.admin_filterbyname', owner_name='KITINUDDA') }}">KITINUDDA</a>
+                        <a class="dropdown-item" href="{{ url_for('.admin_filterbyname', owner_name='MANEERAT') }}">MANEERAT</a>
+                        <a class="dropdown-item" href="{{ url_for('.admin_filterbyname', owner_name='NANTANUCH') }}">NANTANUCH</a>
+                        <a class="dropdown-item" href="{{ url_for('.admin_filterbyname', owner_name='NOPPARAT') }}">NOPPARAT</a>
+                        <a class="dropdown-item" href="{{ url_for('.admin_filterbyname', owner_name='ONJIRA') }}">ONJIRA</a>
+                        <a class="dropdown-item" href="{{ url_for('.admin_filterbyname', owner_name='PAKKAPON') }}">PAKKAPON</a>
+                        <a class="dropdown-item" href="{{ url_for('.admin_filterbyname', owner_name='PONGSATHON') }}">PONGSATHON</a>
+                        <a class="dropdown-item" href="{{ url_for('.admin_filterbyname', owner_name='PRONPARPA') }}">PRONPARPA</a>
+                        <a class="dropdown-item" href="{{ url_for('.admin_filterbyname', owner_name='ROJJANA') }}">ROJJANA</a>
+                        <a class="dropdown-item" href="{{ url_for('.admin_filterbyname', owner_name='SUPARLAK') }}">SUPARLAK</a>
+                        <a class="dropdown-item" href="{{ url_for('.admin_filterbyname', owner_name='SUREEWAN') }}">SUREEWAN</a>
+                        <a class="dropdown-item" href="{{ url_for('.admin_filterbyname', owner_name='TASANAPORN') }}">TASANAPORN</a>
+                        <a class="dropdown-item" href="{{ url_for('.admin_filterbyname', owner_name='WACHIRAPORN') }}">WACHIRAPORN</a>
+                        <a class="dropdown-item" href="{{ url_for('.admin_filterbyname', owner_name='WARARAT') }}">WARARAT</a>
+                    </div>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Summary
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                        <a class="dropdown-item" href="{{ url_for('.admin_summary') }}">All summary</a>
+                        <a class="dropdown-item" href="{{ url_for('.admin_progress') }}">All progress</a>
+                    </div>
+                </li>
+            </ul>
+            <form method="POST" action="{{ url_for('admin_search') }}" class="form-inline my-2 my-lg-0">
+                <input class="form-control mr-sm-2" type="search" placeholder="Search" name="shipment_id">
+                <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+            </form>
+        </div>
+    </nav>
+
+    <div class="card border-primary my-3 mx-auto" style="max-width: 90%;">
+        <div class="card-header bg-primary text-white">All shipments average</div>
+        <div class="card-body text-primary text-center mt-sm-1">
+            <h3 class="card-title display-4">All shipment averaged progress</h3>
+            <div class="progress my-1" style="height: 30px;">
+                <div class="progress-bar bg-success" role="progressbar" style="width: {{ per_success }}%" aria-valuenow="{{ per_success }}" aria-valuemin="0" aria-valuemax="100"><h5 class="mt-sm-1">{{ per_success|round(2, 'floor') }} %</h5></div>
+            </div>
+            <div class="progress my-1"  style="height: 30px;">
+                <div class="progress-bar bg-danger" role="progressbar" style="width: {{ per_actives }}%" aria-valuenow="{{ per_actives }}" aria-valuemin="0" aria-valuemax="100"><h5 class="mt-sm-1">{{ per_actives|round(2, 'floor') }} %</h5></div>
+            </div>
+        </div>
+    </div>
+
+    <hr>
+
+    <div class="card-deck mx-auto" style="width: 92%;">
+        <div class="card border-info">
+            <div class="card-header bg-info">Air freight team</div>
+            <div class="card-body">
+                <p>Average success shipments</p>
+                <div class="progress my-1" style="height: 20px;">
+                    <div class="progress-bar bg-success" role="progressbar" style="width: {{ S_ONJIRA }}%;" aria-valuenow="{{ S_ONJIRA }}" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <p>{{ S_ONJIRA|round(2, 'floor') }} %</p>
+                <p>Average active shipments</p>
+                <div class="progress my-1" style="height: 20px;">
+                    <div class="progress-bar bg-danger" role="progressbar" style="width: {{ A_ONJIRA }}%;" aria-valuenow="{{ A_ONJIRA }}" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <p>{{ A_ONJIRA|round(2, 'floor') }} %</p>
+            </div>
+        </div>
+        <div class="card border-info">
+            <div class="card-header">ONJIRA</div>
+            <div class="card-body">
+                <p>Success shipments</p>
+                <div class="progress my-1" style="height: 20px;">
+                    <div class="progress-bar bg-success" role="progressbar" style="width: {{ S_ONJIRA }}%;" aria-valuenow="{{ S_ONJIRA }}" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <p>{{ S_ONJIRA|round(2, 'floor') }} %</p>
+                <p>Active shipments</p>
+                <div class="progress my-1" style="height: 20px;">
+                    <div class="progress-bar bg-danger" role="progressbar" style="width: {{ A_ONJIRA }}%;" aria-valuenow="{{ A_ONJIRA }}" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <p>{{ A_ONJIRA|round(2, 'floor') }} %</p>
+            </div>
+        </div>
+    </div>
+
+    <hr>
+
+    <div class="card-deck mx-auto" style="width: 92%;">
+        <div class="card border-warning">
+            <div class="card-header bg-warning text-white">Sea import team</div>
+            <div class="card-body">
+                <p>Average success shipments</p>
+                <div class="progress my-1" style="height: 20px;">
+                    <div class="progress-bar bg-success" role="progressbar" style="width: {{ ALL_S_SEAIM }}%;" aria-valuenow="{{ ALL_S_SEAIM }}" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <p>{{ ALL_S_SEAIM|round(2, 'floor') }} %</p>
+                <p>Average active shipments</p>
+                <div class="progress my-1" style="height: 20px;">
+                    <div class="progress-bar bg-danger" role="progressbar" style="width: {{ ALL_A_SEAIM }}%;" aria-valuenow="{{ ALL_A_SEAIM }}" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <p>{{ ALL_A_SEAIM|round(2, 'floor') }} %</p>
+            </div>
+        </div>
+        <div class="card border-warning">
+            <div class="card-header">BUSARAKAM</div>
+            <div class="card-body">
+                <p>Success shipments</p>
+                <div class="progress my-1" style="height: 20px;">
+                    <div class="progress-bar bg-success" role="progressbar" style="width: {{ S_BUSARAKAM }}%;" aria-valuenow="{{ S_BUSARAKAM }}" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <p>{{ S_BUSARAKAM|round(2, 'floor') }} %</p>
+                <p>Active shipments</p>
+                <div class="progress my-1" style="height: 20px;">
+                    <div class="progress-bar bg-danger" role="progressbar" style="width: {{ A_BUSARAKAM }}%;" aria-valuenow="{{ A_BUSARAKAM }}" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <p>{{ A_BUSARAKAM|round(2, 'floor') }} %</p>
+            </div>
+        </div>
+        <div class="card border-warning">
+            <div class="card-header">CHONTICHA</div>
+            <div class="card-body">
+                <p>Success shipments</p>
+                <div class="progress my-1" style="height: 20px;">
+                    <div class="progress-bar bg-success" role="progressbar" style="width: {{ S_CHONTICHA }}%;" aria-valuenow="{{ S_CHONTICHA }}" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <p>{{ S_CHONTICHA|round(2, 'floor') }} %</p>
+                <p>Active shipments</p>
+                <div class="progress my-1" style="height: 20px;">
+                    <div class="progress-bar bg-danger" role="progressbar" style="width: {{ A_CHONTICHA }}%;" aria-valuenow="{{ A_CHONTICHA }}" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <p>{{ A_CHONTICHA|round(2, 'floor') }} %</p>
+            </div>
+        </div>
+        <div class="card border-warning">
+            <div class="card-header">KITINUDDA</div>
+            <div class="card-body">
+                <p>Success shipments</p>
+                <div class="progress my-1" style="height: 20px;">
+                    <div class="progress-bar bg-success" role="progressbar" style="width: {{ S_KITINUDDA }}%;" aria-valuenow="{{ S_KITINUDDA }}" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <p>{{ S_KITINUDDA|round(2, 'floor') }} %</p>
+                <p>Active shipments</p>
+                <div class="progress my-1" style="height: 20px;">
+                    <div class="progress-bar bg-danger" role="progressbar" style="width: {{ A_KITINUDDA }}%;" aria-valuenow="{{ A_KITINUDDA }}" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <p>{{ A_KITINUDDA|round(2, 'floor') }} %</p>
+            </div>
+        </div>
+        <div class="card border-warning">
+            <div class="card-header">TASANAPORN</div>
+            <div class="card-body">
+                <p>Success shipments</p>
+                <div class="progress my-1" style="height: 20px;">
+                    <div class="progress-bar bg-success" role="progressbar" style="width: {{ S_TASANAPORN }}%;" aria-valuenow="{{ S_TASANAPORN }}" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <p>{{ S_TASANAPORN|round(2, 'floor') }} %</p>
+                <p>Active shipments</p>
+                <div class="progress my-1" style="height: 20px;">
+                    <div class="progress-bar bg-danger" role="progressbar" style="width: {{ A_TASANAPORN }}%;" aria-valuenow="{{ A_TASANAPORN }}" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <p>{{ A_TASANAPORN|round(2, 'floor') }} %</p>
+            </div>
+        </div>
+    </div>
+
+    <hr>
+
+    <div class="card-deck mx-auto" style="width: 92%;">
+        <div class="card border-secondary">
+            <div class="card-header bg-secondary text-white">Sea export team</div>
+            <div class="card-body">
+                <p>Average success shipments</p>
+                <div class="progress my-1" style="height: 20px;">
+                    <div class="progress-bar bg-success" role="progressbar" style="width: {{ S_ROJJANA }}%;" aria-valuenow="{{ S_ROJJANA }}" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <p>{{ S_ROJJANA|round(2, 'floor') }} %</p>
+                <p>Average active shipments</p>
+                <div class="progress my-1" style="height: 20px;">
+                    <div class="progress-bar bg-danger" role="progressbar" style="width: {{ A_ROJJANA }}%;" aria-valuenow="{{ A_ROJJANA }}" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <p>{{ A_ROJJANA|round(2, 'floor') }} %</p>
+            </div>
+        </div>
+        <div class="card border-secondary">
+            <div class="card-header">ROJJANA</div>
+            <div class="card-body">
+                <p>Success shipments</p>
+                <div class="progress my-1" style="height: 20px;">
+                    <div class="progress-bar bg-success" role="progressbar" style="width: {{ S_ROJJANA }}%;" aria-valuenow="{{ S_ROJJANA }}" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <p>{{ S_ROJJANA|round(2, 'floor') }} %</p>
+                <p>Active shipments</p>
+                <div class="progress my-1" style="height: 20px;">
+                    <div class="progress-bar bg-danger" role="progressbar" style="width: {{ A_ROJJANA }}%;" aria-valuenow="{{ A_ROJJANA }}" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <p>{{ A_ROJJANA|round(2, 'floor') }} %</p>
+            </div>
+        </div>
+    </div>
+    
+    <hr>
+
+    <div class="card-deck mx-auto" style="width: 92%;">
+        <div class="card border-success">
+            <div class="card-header bg-success text-white">Consol team</div>
+            <div class="card-body">
+                <p>Average success shipments</p>
+                <div class="progress my-1" style="height: 20px;">
+                    <div class="progress-bar bg-success" role="progressbar" style="width: {{ ALL_S_SEACON }}%;" aria-valuenow="{{ ALL_S_SEACON }}" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <p>{{ ALL_S_SEACON|round(2, 'floor') }} %</p>
+                <p>Average active shipments</p>
+                <div class="progress my-1" style="height: 20px;">
+                    <div class="progress-bar bg-danger" role="progressbar" style="width: {{ ALL_A_SEACON }}%;" aria-valuenow="{{ ALL_A_SEACON }}" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <p>{{ ALL_A_SEACON|round(2, 'floor') }} %</p>
+            </div>
+        </div>
+        <div class="card border-success">
+            <div class="card-header">CHIRARAT</div>
+            <div class="card-body">
+                <p>Success shipments</p>
+                <div class="progress my-1" style="height: 20px;">
+                    <div class="progress-bar bg-success" role="progressbar" style="width: {{ S_CHIRARAT }}%;" aria-valuenow="{{ S_CHIRARAT }}" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <p>{{ S_CHIRARAT|round(2, 'floor') }} %</p>
+                <p>Active shipments</p>
+                <div class="progress my-1" style="height: 20px;">
+                    <div class="progress-bar bg-danger" role="progressbar" style="width: {{ A_CHIRARAT }}%;" aria-valuenow="{{ A_CHIRARAT }}" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <p>{{ A_CHIRARAT|round(2, 'floor') }} %</p>
+            </div>
+        </div>
+        <div class="card border-success">
+            <div class="card-header">SUREEWAN</div>
+            <div class="card-body">
+                <p>Success shipments</p>
+                <div class="progress my-1" style="height: 20px;">
+                    <div class="progress-bar bg-success" role="progressbar" style="width: {{ S_SUREEWAN }}%;" aria-valuenow="{{ S_SUREEWAN }}" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <p>{{ S_SUREEWAN|round(2, 'floor') }} %</p>
+                <p>Active shipments</p>
+                <div class="progress my-1" style="height: 20px;">
+                    <div class="progress-bar bg-danger" role="progressbar" style="width: {{ A_SUREEWAN }}%;" aria-valuenow="{{ A_SUREEWAN }}" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <p>{{ A_SUREEWAN|round(2, 'floor') }} %</p>
+            </div>
+        </div>
+    </div>
+
+    <hr>
+
+    <div class="card-deck mx-auto" style="width: 92%;">
+        <div class="card border-dark">
+            <div class="card-header bg-dark text-white">Key account team</div>
+            <div class="card-body">
+                <p>Average success shipments</p>
+                <div class="progress my-1" style="height: 20px;">
+                    <div class="progress-bar bg-success" role="progressbar" style="width: {{ ALL_S_SEAKEYACC }}%;" aria-valuenow="{{ ALL_S_SEAKEYACC }}" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <p>{{ ALL_S_SEAKEYACC|round(2, 'floor') }} %</p>
+                <p>Average active shipments</p>
+                <div class="progress my-1" style="height: 20px;">
+                    <div class="progress-bar bg-danger" role="progressbar" style="width: {{ ALL_A_SEAKEYACC }}%;" aria-valuenow="{{ ALL_A_SEAKEYACC }}" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <p>{{ ALL_A_SEAKEYACC|round(2, 'floor') }} %</p>
+            </div>
+        </div>
+        <div class="card border-dark">
+            <div class="card-header">AREEYA</div>
+            <div class="card-body">
+                <p>Success shipments</p>
+                <div class="progress my-1" style="height: 20px;">
+                    <div class="progress-bar bg-success" role="progressbar" style="width: {{ S_AREEYA }}%;" aria-valuenow="{{ S_AREEYA }}" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <p>{{ S_AREEYA|round(2, 'floor') }} %</p>
+                <p>Active shipments</p>
+                <div class="progress my-1" style="height: 20px;">
+                    <div class="progress-bar bg-danger" role="progressbar" style="width: {{ A_AREEYA }}%;" aria-valuenow="{{ A_AREEYA }}" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <p>{{ A_AREEYA|round(2, 'floor') }} %</p>
+            </div>
+        </div>
+        <div class="card border-dark">
+            <div class="card-header">ATCHARA</div>
+            <div class="card-body">
+                <p>Success shipments</p>
+                <div class="progress my-1" style="height: 20px;">
+                    <div class="progress-bar bg-success" role="progressbar" style="width: {{ S_ATCHARA }}%;" aria-valuenow="{{ S_ATCHARA }}" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <p>{{ S_ATCHARA|round(2, 'floor') }} %</p>
+                <p>Active shipments</p>
+                <div class="progress my-1" style="height: 20px;">
+                    <div class="progress-bar bg-danger" role="progressbar" style="width: {{ A_ATCHARA }}%;" aria-valuenow="{{ A_ATCHARA }}" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <p>{{ A_ATCHARA|round(2, 'floor') }} %</p>
+            </div>
+        </div>
+        <div class="card border-dark">
+            <div class="card-header">NANTANUCH</div>
+            <div class="card-body">
+                <p>Success shipments</p>
+                <div class="progress my-1" style="height: 20px;">
+                    <div class="progress-bar bg-success" role="progressbar" style="width: {{ S_NANTANUCH }}%;" aria-valuenow="{{ S_NANTANUCH }}" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <p>{{ S_NANTANUCH|round(2, 'floor') }} %</p>
+                <p>Active shipments</p>
+                <div class="progress my-1" style="height: 20px;">
+                    <div class="progress-bar bg-danger" role="progressbar" style="width: {{ A_NANTANUCH }}%;" aria-valuenow="{{ A_NANTANUCH }}" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <p>{{ A_NANTANUCH|round(2, 'floor') }} %</p>
+            </div>
+        </div>
+        <div class="card border-dark">
+            <div class="card-header">DUANGPORN</div>
+            <div class="card-body">
+                <p>Success shipments</p>
+                <div class="progress my-1" style="height: 20px;">
+                    <div class="progress-bar bg-success" role="progressbar" style="width: {{ S_DUANGPORN }}%;" aria-valuenow="{{ S_DUANGPORN }}" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <p>{{ S_DUANGPORN|round(2, 'floor') }} %</p>
+                    <p>Active shipments</p>
+                    <div class="progress my-1" style="height: 20px;">
+                        <div class="progress-bar bg-danger" role="progressbar" style="width: {{ A_DUANGPORN }}%;" aria-valuenow="{{ A_DUANGPORN }}" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                    <p>{{ A_DUANGPORN|round(2, 'floor') }} %</p>
+            </div>
+        </div>
+        <div class="card border-dark">
+            <div class="card-header">WACHIRAPORN</div>
+            <div class="card-body">
+                <p>Success shipments</p>
+                <div class="progress my-1" style="height: 20px;">
+                    <div class="progress-bar bg-success" role="progressbar" style="width: {{ S_WACHIRAPORN }}%;" aria-valuenow="{{ S_WACHIRAPORN }}" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <p>{{ S_WACHIRAPORN|round(2, 'floor') }} %</p>
+                    <p>Active shipments</p>
+                    <div class="progress my-1" style="height: 20px;">
+                        <div class="progress-bar bg-danger" role="progressbar" style="width: {{ A_WACHIRAPORN }}%;" aria-valuenow="{{ A_WACHIRAPORN }}" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                    <p>{{ A_WACHIRAPORN|round(2, 'floor') }} %</p>
+            </div>
+        </div>
+    </div>
+
+    <hr>
+
+    <div class="card-deck mx-auto" style="width: 92%;">
+        <div class="card border-primary">
+            <div class="card-header bg-primary text-white">Key agent team</div>
+            <div class="card-body">
+                <p>Average success shipments</p>
+                <div class="progress my-1" style="height: 20px;">
+                    <div class="progress-bar bg-success" role="progressbar" style="width: {{ S_PRONPARPA }}%;" aria-valuenow="{{ S_PRONPARPA }}" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <p>{{ S_PRONPARPA|round(2, 'floor') }} %</p>
+                <p>Average active shipments</p>
+                <div class="progress my-1" style="height: 20px;">
+                    <div class="progress-bar bg-danger" role="progressbar" style="width: {{ A_PRONPARPA }}%;" aria-valuenow="{{ A_PRONPARPA }}" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <p>{{ A_PRONPARPA|round(2, 'floor') }} %</p>
+            </div>
+        </div>
+        <div class="card border-primary">
+            <div class="card-header">PRONPARPA</div>
+            <div class="card-body">
+                <p>Success shipments</p>
+                <div class="progress my-1" style="height: 20px;">
+                    <div class="progress-bar bg-success" role="progressbar" style="width: {{ S_PRONPARPA }}%;" aria-valuenow="{{ S_PRONPARPA }}" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <p>{{ S_PRONPARPA|round(2, 'floor') }} %</p>
+                <p>Active shipments</p>
+                <div class="progress my-1" style="height: 20px;">
+                    <div class="progress-bar bg-danger" role="progressbar" style="width: {{ A_PRONPARPA }}%;" aria-valuenow="{{ A_PRONPARPA }}" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <p>{{ A_PRONPARPA|round(2, 'floor') }} %</p>
+            </div>
+        </div>
+    </div>
+
+    <hr>
+
+    <div class="card-deck mx-auto" style="width: 92%;">
+        <div class="card border-danger">
+            <div class="card-header bg-danger text-white">CSR1 team</div>
+            <div class="card-body">
+                <p>Average success shipments</p>
+                <div class="progress my-1" style="height: 20px;">
+                    <div class="progress-bar bg-success" role="progressbar" style="width: {{ ALL_S_SEACSR1 }}%;" aria-valuenow="{{ ALL_S_SEACSR1 }}" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <p>{{ ALL_S_SEACSR1|round(2, 'floor') }} %</p>
+                <p>Average active shipments</p>
+                <div class="progress my-1" style="height: 20px;">
+                    <div class="progress-bar bg-danger" role="progressbar" style="width: {{ ALL_A_SEACSR1 }}%;" aria-valuenow="{{ ALL_A_SEACSR1 }}" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <p>{{ ALL_A_SEACSR1|round(2, 'floor') }} %</p>
+            </div>
+        </div>
+        <div class="card border-danger">
+            <div class="card-header">FRAME</div>
+            <div class="card-body">
+                <p>Success shipments</p>
+                <div class="progress my-1" style="height: 20px;">
+                    <div class="progress-bar bg-success" role="progressbar" style="width: {{ S_FRAME }}%;" aria-valuenow="{{ S_FRAME }}" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <p>{{ S_FRAME|round(2, 'floor') }} %</p>
+                <p>Active shipments</p>
+                <div class="progress my-1" style="height: 20px;">
+                    <div class="progress-bar bg-danger" role="progressbar" style="width: {{ A_FRAME }}%;" aria-valuenow="{{ A_FRAME }}" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <p>{{ A_FRAME|round(2, 'floor') }} %</p>
+            </div>
+        </div>
+        <div class="card border-danger">
+            <div class="card-header">KEMJIRA</div>
+            <div class="card-body">
+                <p>Success shipments</p>
+                <div class="progress my-1" style="height: 20px;">
+                    <div class="progress-bar bg-success" role="progressbar" style="width: {{ S_KEMJIRA }}%;" aria-valuenow="{{ S_KEMJIRA }}" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <p>{{ S_KEMJIRA|round(2, 'floor') }} %</p>
+                <p>Active shipments</p>
+                <div class="progress my-1" style="height: 20px;">
+                    <div class="progress-bar bg-danger" role="progressbar" style="width: {{ A_KEMJIRA }}%;" aria-valuenow="{{ A_KEMJIRA }}" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <p>{{ A_KEMJIRA|round(2, 'floor') }} %</p>
+            </div>
+        </div>
+        <div class="card border-danger">
+            <div class="card-header">MANEERAT</div>
+            <div class="card-body">
+                <p>Success shipments</p>
+                <div class="progress my-1" style="height: 20px;">
+                    <div class="progress-bar bg-success" role="progressbar" style="width: {{ S_MANEERAT }}%;" aria-valuenow="{{ S_MANEERAT }}" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <p>{{ S_MANEERAT|round(2, 'floor') }} %</p>
+                <p>Active shipments</p>
+                <div class="progress my-1" style="height: 20px;">
+                    <div class="progress-bar bg-danger" role="progressbar" style="width: {{ A_MANEERAT }}%;" aria-valuenow="{{ A_MANEERAT }}" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <p>{{ A_MANEERAT|round(2, 'floor') }} %</p>
+            </div>
+        </div>
+        <div class="card border-danger">
+            <div class="card-header">NOPPARAT</div>
+            <div class="card-body">
+                <p>Success shipments</p>
+                <div class="progress my-1" style="height: 20px;">
+                    <div class="progress-bar bg-success" role="progressbar" style="width: {{ S_NOPPARAT }}%;" aria-valuenow="{{ S_NOPPARAT }}" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <p>{{ S_NOPPARAT|round(2, 'floor') }} %</p>
+                <p>Active shipments</p>
+                <div class="progress my-1" style="height: 20px;">
+                    <div class="progress-bar bg-danger" role="progressbar" style="width: {{ A_NOPPARAT }}%;" aria-valuenow="{{ A_NOPPARAT }}" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <p>{{ A_NOPPARAT|round(2, 'floor') }} %</p>
+            </div>
+        </div>
+    </div>
+
+    <hr>
+
+    <div class="card-deck mx-auto" style="width: 92%;">
+        <div class="card border-success">
+            <div class="card-header bg-success text-white">CSR4 team</div>
+            <div class="card-body">
+                <p>Average success shipments</p>
+                <div class="progress my-1" style="height: 20px;">
+                    <div class="progress-bar bg-success" role="progressbar" style="width: {{ ALL_S_SEACSR4 }}%;" aria-valuenow="{{ ALL_S_SEACSR4 }}" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <p>{{ ALL_S_SEACSR4|round(2, 'floor') }} %</p>
+                <p>Average active shipments</p>
+                <div class="progress my-1" style="height: 20px;">
+                    <div class="progress-bar bg-danger" role="progressbar" style="width: {{ ALL_A_SEACSR4 }}%;" aria-valuenow="{{ ALL_A_SEACSR4 }}" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <p>{{ ALL_A_SEACSR4|round(2, 'floor') }} %</p>
+            </div>
+        </div>
+        <div class="card border-success">
+            <div class="card-header">PONGSATHON</div>
+            <div class="card-body">
+                <p>Success shipments</p>
+                <div class="progress my-1" style="height: 20px;">
+                    <div class="progress-bar bg-success" role="progressbar" style="width: {{ S_PONGSATHON }}%;" aria-valuenow="{{ S_PONGSATHON }}" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <p>{{ S_PONGSATHON|round(2, 'floor') }} %</p>
+                <p>Active shipments</p>
+                <div class="progress my-1" style="height: 20px;">
+                    <div class="progress-bar bg-danger" role="progressbar" style="width: {{ A_PONGSATHON }}%;" aria-valuenow="{{ A_PONGSATHON }}" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <p>{{ A_PONGSATHON|round(2, 'floor') }} %</p>
+            </div>
+        </div>
+        <div class="card border-success">
+            <div class="card-header">WARARAT</div>
+            <div class="card-body">
+                <p>Success shipments</p>
+                <div class="progress my-1" style="height: 20px;">
+                    <div class="progress-bar bg-success" role="progressbar" style="width: {{ S_WARARAT }}%;" aria-valuenow="{{ S_WARARAT }}" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <p>{{ S_WARARAT|round(2, 'floor') }} %</p>
+                <p>Active shipments</p>
+                <div class="progress my-1" style="height: 20px;">
+                    <div class="progress-bar bg-danger" role="progressbar" style="width: {{ A_WARARAT }}%;" aria-valuenow="{{ A_WARARAT }}" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <p>{{ A_WARARAT|round(2, 'floor') }} %</p>
+            </div>
+        </div>
+    </div>
+
+    <hr>
+
+    <nav class="navbar navbar-dark bg-primary">
+        <p class="navbar-text mx-auto d-flex">Create by Chisanupol Wongsoonthorn &copy; version alpha-1.3</p>
+    </nav>
+{% endblock %}
+
+{% block scripts %}
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
+{% endblock %}

@@ -1,0 +1,150 @@
+{% extends "bootstrap/base.html" %}
+
+{% block head %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal Auditing</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+{% endblock %}
+
+{% block title %}Portal auditor{% endblock %}
+
+{% block content %}
+    <nav class="navbar navbar-expand-lg navbar-light sticky-top" style="background-color: #e3f2fd;">
+        <a class="navbar-brand">Portal Auditor Tools</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <form method="POST" action="{{ url_for('customer_search') }}" class="form-inline my-2 my-lg-0">
+                <input class="form-control mr-sm-2" type="search" placeholder="Search" name="customer_name" style="width: 70vw;">
+                <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+            </form>
+        </div>
+    </nav>
+
+    <div class="card border-primary my-3 mx-auto" style="max-width: 90%;">
+        <div class="card-header bg-primary text-white">{{ customer_name }}</div>
+        <div class="card-body text-primary text-center mt-sm-1">
+            <h3 class="card-title display-4">All data progress</h3>
+            <div class="progress my-1" style="height: 30px;">
+                <div class="progress-bar bg-success" role="progressbar" style="width: {{ all_data_s }}%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+            <h5 class="mt-sm-1">{{ all_data_s|round(2, 'floor') }} %</h5>
+            <div class="progress my-1"  style="height: 30px;">
+                <div class="progress-bar bg-danger" role="progressbar" style="width: {{ all_data_a }}%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+            <h5 class="mt-sm-1">{{ all_data_a|round(2, 'floor') }} %</h5>
+        </div>
+    </div>
+
+    <div class="card-deck mx-auto" style="width: 92%;">
+        <div class="card border-info">
+            <div class="card-header bg-secondary text-white">JANUARY</div>
+            <div class="card-body">
+                <p>Success data</p>
+                <div class="progress my-1" style="height: 20px;">
+                    <div class="progress-bar bg-success" role="progressbar" style="width: 100%;" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <p>100.00 %</p>
+                <p>Active Data</p>
+                <div class="progress my-1" style="height: 20px;">
+                    <div class="progress-bar bg-danger" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <p>0.00 %</p>
+            </div>
+        </div>
+        <div class="card border-info">
+            <div class="card-header bg-secondary text-white">FEBRUARY</div>
+            <div class="card-body">
+                <p>Success data</p>
+                <div class="progress my-1" style="height: 20px;">
+                    <div class="progress-bar bg-success" role="progressbar" style="width: 100%;" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <p>100.00 %</p>
+                <p>Active Data</p>
+                <div class="progress my-1" style="height: 20px;">
+                    <div class="progress-bar bg-danger" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <p>0.00 %</p>
+            </div>
+        </div>
+        <div class="card border-info">
+            <div class="card-header bg-secondary text-white">MARCH</div>
+            <div class="card-body">
+                <p>Success data</p>
+                <div class="progress my-1" style="height: 20px;">
+                    <div class="progress-bar bg-success" role="progressbar" style="width: 100%;" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <p>100.00 %</p>
+                <p>Active Data</p>
+                <div class="progress my-1" style="height: 20px;">
+                    <div class="progress-bar bg-danger" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <p>0.00 %</p>
+            </div>
+        </div>
+        <div class="card border-info">
+            <div class="card-header bg-secondary text-white">APRIL</div>
+            <div class="card-body">
+                <p>Success data</p>
+                <div class="progress my-1" style="height: 20px;">
+                    <div class="progress-bar bg-success" role="progressbar" style="width: 100%;" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <p>100.00 %</p>
+                <p>Active Data</p>
+                <div class="progress my-1" style="height: 20px;">
+                    <div class="progress-bar bg-danger" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <p>0.00 %</p>
+            </div>
+        </div>
+    </div>
+
+    <hr>
+
+    <div class="card-deck mx-auto" style="width: 92%;">
+        <div class="card border-info">
+            <div class="card-header bg-info">MAY ({{ data_may }} shipments)</div>
+            <div class="card-body">
+                <p>Success data</p>
+                <div class="progress my-1" style="height: 20px;">
+                    <div class="progress-bar bg-success" role="progressbar" style="width: {{ s_may }}%;" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <p>{{ s_may|round(2, 'floor') }} %</p>
+                <p>Active Data</p>
+                <div class="progress my-1" style="height: 20px;">
+                    <div class="progress-bar bg-danger" role="progressbar" style="width: {{ a_may }}%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <p>{{ a_may|round(2, 'floor') }} %</p>
+            </div>
+        </div>
+        <div class="card border-info">
+            <div class="card-header bg-info">June ({{ data_june }} shipments)</div>
+            <div class="card-body">
+                <p>Success data</p>
+                <div class="progress my-1" style="height: 20px;">
+                    <div class="progress-bar bg-success" role="progressbar" style="width: {{ s_june }}%;" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <p>{{ s_june|round(2, 'floor') }} %</p>
+                <p>Active Data</p>
+                <div class="progress my-1" style="height: 20px;">
+                    <div class="progress-bar bg-danger" role="progressbar" style="width: {{ a_june }}%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <p>{{ a_june|round(2, 'floor') }} %</p>
+            </div>
+        </div>
+    </div>
+
+    <hr>
+
+    <nav class="navbar navbar-dark bg-primary">
+        <p class="navbar-text mx-auto d-flex">Create by Chisanupol Wongsoonthorn &copy; version alpha-1.3</p>
+    </nav>
+{% endblock %}
+
+{% block scripts %}
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
+{% endblock %}
